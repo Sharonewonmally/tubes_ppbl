@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'database_helper.dart';
 import 'detail_forum_page.dart';
+import 'forum_card.dart';
 
 class ListForumPage extends StatefulWidget {
   const ListForumPage({super.key});
@@ -15,10 +18,15 @@ class _ListForumPageState
 
   List<Map<String, dynamic>> forumList = [];
 
+  String lastForum = "-";
+  String lastGenre = "-";
+
   @override
   void initState() {
     super.initState();
+
     getForum();
+    loadPrefs();
   }
 
   // =====================
@@ -41,6 +49,47 @@ class _ListForumPageState
     });
   }
 
+  // =====================
+  // SHARED PREFERENCES
+  // =====================
+  Future<void> saveLastForum(
+      String judul,
+      String genre,
+      ) async {
+
+    SharedPreferences prefs =
+    await SharedPreferences.getInstance();
+
+    await prefs.setString(
+      'lastForum',
+      judul,
+    );
+
+    await prefs.setString(
+      'lastGenre',
+      genre,
+    );
+  }
+
+  Future<void> loadPrefs() async {
+
+    SharedPreferences prefs =
+    await SharedPreferences.getInstance();
+
+    setState(() {
+
+      lastForum =
+          prefs.getString(
+              'lastForum') ??
+              "-";
+
+      lastGenre =
+          prefs.getString(
+              'lastGenre') ??
+              "-";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -58,96 +107,119 @@ class _ListForumPageState
         Colors.blue,
       ),
 
-      body: forumList.isEmpty
+      body: Column(
 
-          ? const Center(
-        child:
-        Text('Belum ada forum'),
-      )
+        children: [
 
-          : ListView.builder(
+          Container(
 
-        padding:
-        const EdgeInsets.all(16),
+            width: double.infinity,
 
-        itemCount:
-        forumList.length,
+            margin:
+            const EdgeInsets.all(10),
 
-        itemBuilder:
-            (context, index) {
+            padding:
+            const EdgeInsets.all(10),
 
-          final data =
-          forumList[index];
+            decoration: BoxDecoration(
 
-          return Card(
-
-            shape:
-            RoundedRectangleBorder(
+              color:
+              Colors.blue.shade50,
 
               borderRadius:
               BorderRadius.circular(
-                  16),
+                  12),
             ),
 
-            child: ListTile(
+            child: Column(
 
-              onTap: () {
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
 
-                Navigator.push(
+              children: [
 
-                  context,
+                Text(
+                  "Forum Terakhir : $lastForum",
+                ),
 
-                  MaterialPageRoute(
+                Text(
+                  "Genre Terakhir : $lastGenre",
+                ),
+              ],
+            ),
+          ),
 
-                    builder: (_) =>
-                        DetailForumPage(
-                          forum: data,
+          Expanded(
+
+            child: forumList.isEmpty
+
+                ? const Center(
+              child:
+              Text(
+                  'Belum ada forum'),
+            )
+
+                : ListView.builder(
+
+              padding:
+              const EdgeInsets.all(
+                  16),
+
+              itemCount:
+              forumList.length,
+
+              itemBuilder:
+                  (context, index) {
+
+                final data =
+                forumList[index];
+
+                return ForumCard(
+
+                  forum: data,
+
+                  onTap: () async {
+
+                    await saveLastForum(
+
+                      data['judul'],
+
+                      data['genre'],
+                    );
+
+                    Navigator.push(
+
+                      context,
+
+                      MaterialPageRoute(
+
+                        builder: (_) =>
+                            DetailForumPage(
+                              forum: data,
+                            ),
+                      ),
+                    );
+                  },
+
+                  onLongPress: () {
+
+                    ScaffoldMessenger.of(
+                        context)
+                        .showSnackBar(
+
+                      SnackBar(
+
+                        content: Text(
+                          "Forum : ${data['judul']}",
                         ),
-                  ),
+                      ),
+                    );
+                  },
                 );
               },
-
-              leading:
-              const CircleAvatar(
-
-                backgroundColor:
-                Colors.blue,
-
-                child: Icon(
-                  Icons.forum,
-                  color:
-                  Colors.white,
-                ),
-              ),
-
-              title: Text(
-                data['judul'],
-              ),
-
-              subtitle: Column(
-
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-
-                children: [
-
-                  Text(
-                    data['genre'],
-                  ),
-
-                  Text(
-                    "Status : ${data['status']}",
-                  ),
-                ],
-              ),
-
-              trailing:
-              const Icon(
-                Icons.arrow_forward_ios,
-              ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
