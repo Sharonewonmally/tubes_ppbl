@@ -1,0 +1,38 @@
+name: assesment2_kelompok10
+
+description: "A new Flutter project."
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '^3.11.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # SQLITE
+  sqflite: ^2.3.0
+
+  # SHARED PREFERENCES
+  shared_preferences: ^2.2.2
+
+  # PATH SQLITE
+  path: ^1.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+    - assets/cover/
