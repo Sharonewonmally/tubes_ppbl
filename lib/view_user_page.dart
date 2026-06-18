@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/global_data.dart';
 import 'database_helper.dart';
-import 'models/user_model.dart';
 
 class ViewUserPage extends StatefulWidget {
   const ViewUserPage({super.key});
@@ -24,9 +25,7 @@ class _ViewUserPageState extends State<ViewUserPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    userId =
-    ModalRoute.of(context)!.settings.arguments
-    as int;
+    userId = ModalRoute.of(context)!.settings.arguments as int;
 
     fetchUserDetail();
     loadSharedPrefs();
@@ -34,44 +33,34 @@ class _ViewUserPageState extends State<ViewUserPage> {
 
   // ================= SQLITE =================
   Future<void> fetchUserDetail() async {
-    final data =
-    await DatabaseHelper.getUserById(userId);
 
     final fetchedUser =
-    UserModel.fromMap(data);
+    await DatabaseHelper.getUserById(userId);
 
-    // ================= SHARED PREFERENCES =================
     SharedPreferences prefs =
     await SharedPreferences.getInstance();
 
     await prefs.setString(
       'lastViewedUser',
-      fetchedUser.username,
+      fetchedUser['username'],
     );
 
     await prefs.setInt(
       'lastViewedId',
-      fetchedUser.id,
+      fetchedUser['id'],
     );
 
     setState(() {
-      user = fetchedUser;
-
+      user = UserModel.fromMap(fetchedUser);
       isLoading = false;
     });
   }
-
-  // ================= LOAD SHARED PREFS =================
   Future<void> loadSharedPrefs() async {
-    SharedPreferences prefs =
-    await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      lastViewedUser =
-          prefs.getString('lastViewedUser') ?? '-';
-
-      lastViewedId =
-          prefs.getInt('lastViewedId') ?? 0;
+      lastViewedUser = prefs.getString('lastViewedUser') ?? '-';
+      lastViewedId = prefs.getInt('lastViewedId') ?? 0;
     });
   }
 
@@ -79,100 +68,149 @@ class _ViewUserPageState extends State<ViewUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50, // Latar belakang yang lebih lembut
       appBar: AppBar(
-        title: const Text("Detail User"),
+        title: const Text(
+          "Detail User",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
       ),
-
       body: isLoading
           ? const Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          color: Colors.blueAccent,
+        ),
       )
-
-          : Padding(
-        padding: const EdgeInsets.all(20),
-
-        child: Column(
-          children: [
-
-            // ================= SHARED PREFERENCES =================
-            Container(
-              width: double.infinity,
-
-              padding:
-              const EdgeInsets.all(12),
-
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-
-                borderRadius:
-                BorderRadius.circular(12),
+          : SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // ================= FOTO PROFIL =================
+              Container(
+                padding: const EdgeInsets.all(4), // Ketebalan border
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  radius: 75,
+                  backgroundColor: Colors.white,
+                  backgroundImage: AssetImage(user!.fotoProfil),
+                ),
               ),
+              const SizedBox(height: 20),
 
-              child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+              // ================= USERNAME =================
+              Text(
+                user!.username,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 12),
 
-                children: [
-                  const Text(
-                    "Shared Preferences",
-
-                    style: TextStyle(
-                      fontWeight:
-                      FontWeight.bold,
-
-                      fontSize: 18,
+              // ================= SOCIAL MEDIA =================
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.alternate_email,
+                      size: 18,
+                      color: Colors.grey.shade700,
                     ),
+                    const SizedBox(width: 8),
+                    Text(
+                      user!.socialMedia,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey.shade800,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // ================= SHARED PREFERENCES =================
+              Card(
+                elevation: 3,
+                shadowColor: Colors.black12,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.history_rounded,
+                          color: Colors.blue.shade700,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Terakhir Dilihat",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Username : $lastViewedUser",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "ID User      : $lastViewedId",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-
-                  const SizedBox(height: 10),
-
-                  Text(
-                    "Last Viewed User: $lastViewedUser",
-                  ),
-
-                  Text(
-                    "Last Viewed ID: $lastViewedId",
-                  ),
-                ],
+                ),
               ),
-            ),
-
-            const SizedBox(height: 40),
-
-            // ================= FOTO PROFIL =================
-            CircleAvatar(
-              radius: 80,
-
-              backgroundImage:
-              AssetImage(
-                user!.fotoProfil,
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // ================= USERNAME =================
-            Text(
-              user!.username,
-
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // ================= SOCIAL MEDIA =================
-            Text(
-              user!.socialMedia,
-
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

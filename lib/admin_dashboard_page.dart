@@ -163,19 +163,273 @@ class AdminDashboardPage
         Colors.blue,
       ),
 
-      body: const Center(
+      body: SingleChildScrollView(
 
-        child: Text(
+        padding: const EdgeInsets.all(16),
 
-          'Selamat Datang Admin',
+        child: Column(
 
-          style: TextStyle(
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
 
-            fontSize: 24,
+          children: [
 
-            fontWeight:
-            FontWeight.bold,
-          ),
+            // =====================
+            // WELCOME CARD
+            // =====================
+            Container(
+
+              width: double.infinity,
+
+              padding:
+              const EdgeInsets.all(20),
+
+              decoration: BoxDecoration(
+
+                gradient:
+                const LinearGradient(
+
+                  colors: [
+                    Color(0xff1565C0),
+                    Color(0xff42A5F5),
+                  ],
+                ),
+
+                borderRadius:
+                BorderRadius.circular(20),
+              ),
+
+              child: const Column(
+
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+
+                children: [
+
+                  Text(
+
+                    "Welcome Admin 👋",
+
+                    style: TextStyle(
+
+                      color: Colors.white,
+
+                      fontSize: 24,
+
+                      fontWeight:
+                      FontWeight.bold,
+                    ),
+                  ),
+
+                  SizedBox(height: 8),
+
+                  Text(
+
+                    "Kelola forum dan user dengan mudah",
+
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            const Text(
+
+              "Menu Admin",
+
+              style: TextStyle(
+
+                fontSize: 20,
+
+                fontWeight:
+                FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            Row(
+
+              children: [
+
+                Expanded(
+
+                  child: GestureDetector(
+
+                    onTap: () {
+
+                      Navigator.push(
+
+                        context,
+
+                        MaterialPageRoute(
+
+                          builder: (_) =>
+                          const KelolaForumPage(),
+                        ),
+                      );
+                    },
+
+                    child: Container(
+
+                      height: 140,
+
+                      decoration: BoxDecoration(
+
+                        color: Colors.white,
+
+                        borderRadius:
+                        BorderRadius.circular(
+                            20),
+
+                        boxShadow: const [
+
+                          BoxShadow(
+                            color:
+                            Colors.black12,
+                            blurRadius: 5,
+                          ),
+                        ],
+                      ),
+
+                      child: const Column(
+
+                        mainAxisAlignment:
+                        MainAxisAlignment.center,
+
+                        children: [
+
+                          Icon(
+                            Icons.forum,
+                            size: 50,
+                            color: Colors.blue,
+                          ),
+
+                          SizedBox(height: 10),
+
+                          Text(
+                            "Kelola Forum",
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 15),
+
+                Expanded(
+
+                  child: GestureDetector(
+
+                    onTap: () {
+
+                      Navigator.push(
+
+                        context,
+
+                        MaterialPageRoute(
+
+                          builder: (_) =>
+                          const UserListPage(),
+                        ),
+                      );
+                    },
+
+                    child: Container(
+
+                      height: 140,
+
+                      decoration: BoxDecoration(
+
+                        color: Colors.white,
+
+                        borderRadius:
+                        BorderRadius.circular(
+                            20),
+
+                        boxShadow: const [
+
+                          BoxShadow(
+                            color:
+                            Colors.black12,
+                            blurRadius: 5,
+                          ),
+                        ],
+                      ),
+
+                      child: const Column(
+
+                        mainAxisAlignment:
+                        MainAxisAlignment.center,
+
+                        children: [
+
+                          Icon(
+                            Icons.people,
+                            size: 50,
+                            color: Colors.green,
+                          ),
+
+                          SizedBox(height: 10),
+
+                          Text(
+                            "Kelola User",
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 25),
+
+            Container(
+
+              width: double.infinity,
+
+              padding:
+              const EdgeInsets.all(16),
+
+              decoration: BoxDecoration(
+
+                color:
+                Colors.orange.shade50,
+
+                borderRadius:
+                BorderRadius.circular(
+                    16),
+              ),
+
+              child: const Row(
+
+                children: [
+
+                  Icon(
+                    Icons.info,
+                    color: Colors.orange,
+                  ),
+
+                  SizedBox(width: 10),
+
+                  Expanded(
+
+                    child: Text(
+
+                      "Admin dapat mengelola forum, user, dan memoderasi diskusi.",
+
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

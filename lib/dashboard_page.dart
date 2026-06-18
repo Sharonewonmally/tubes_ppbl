@@ -229,56 +229,86 @@ class DashboardPage extends StatelessWidget {
             // WELCOME CARD
             // =====================
             Container(
-
               width: double.infinity,
-
-              padding:
-              const EdgeInsets.all(20),
-
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-
-                color: Colors.blue,
-
-                borderRadius:
-                BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xff1976D2),
+                    Color(0xff42A5F5),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
               ),
-
-              child: const Column(
-
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-
+              child: Row(
                 children: [
-
-                  Text(
-
-                    'Selamat Datang 👋',
-
-                    style: TextStyle(
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      fontSize: 24,
-                      fontWeight:
-                      FontWeight.bold,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: const CircleAvatar(
+                      radius: 35,
+                      backgroundImage:
+                      AssetImage("assets/pfp-adzra.jpeg"),
                     ),
                   ),
 
-                  SizedBox(height: 10),
+                  const SizedBox(width: 15),
 
-                  Text(
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                      children: [
 
-                    'Aplikasi Forum Diskusi Buku',
+                        Text(
+                          "Welcome Back 👋",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
 
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                        SizedBox(height: 5),
+
+                        Text(
+                          "Adzra Aditama",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight:
+                            FontWeight.bold,
+                          ),
+                        ),
+
+                        SizedBox(height: 5),
+
+                        Text(
+                          "Forum Diskusi & Buku Digital",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 30),
-
+            const SizedBox(height: 25),
             const Text(
 
               'Menu Utama',
@@ -293,27 +323,19 @@ class DashboardPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             // =====================
-            // MENU CARD
-            // =====================
-            Row(
+// MENU CARD
+// =====================
 
+            Row(
               children: [
 
-                // =====================
-                // FORUM
-                // =====================
                 Expanded(
-
                   child: GestureDetector(
 
                     onTap: () {
-
                       Navigator.push(
-
                         context,
-
                         MaterialPageRoute(
-
                           builder: (_) =>
                           const ForumLocalPage(),
                         ),
@@ -325,19 +347,12 @@ class DashboardPage extends StatelessWidget {
                       height: 130,
 
                       decoration: BoxDecoration(
-
                         color: Colors.white,
-
                         borderRadius:
-                        BorderRadius.circular(
-                            20),
-
-                        boxShadow: [
-
+                        BorderRadius.circular(20),
+                        boxShadow: const [
                           BoxShadow(
-                            color:
-                            Colors.black12,
-
+                            color: Colors.black12,
                             blurRadius: 5,
                           ),
                         ],
@@ -358,9 +373,7 @@ class DashboardPage extends StatelessWidget {
 
                           SizedBox(height: 10),
 
-                          Text(
-                            'Forum Diskusi',
-                          ),
+                          Text('Forum Diskusi'),
                         ],
                       ),
                     ),
@@ -368,6 +381,156 @@ class DashboardPage extends StatelessWidget {
                 ),
 
                 const SizedBox(width: 15),
+
+                Expanded(
+                  child: GestureDetector(
+
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const GenrePage(),
+                        ),
+                      );
+                    },
+
+                    child: Container(
+
+                      height: 130,
+
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 5,
+                          ),
+                        ],
+                      ),
+
+                      child: const Column(
+
+                        mainAxisAlignment:
+                        MainAxisAlignment.center,
+
+                        children: [
+
+                          Icon(
+                            Icons.book,
+                            size: 45,
+                            color: Colors.orange,
+                          ),
+
+                          SizedBox(height: 10),
+
+                          Text('Genre Buku'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+
+            Row(
+              children: [
+
+                Expanded(
+                  child: Container(
+
+                    height: 130,
+
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                      BorderRadius.circular(20),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 5,
+                        ),
+                      ],
+                    ),
+
+                    child: const Column(
+
+                      mainAxisAlignment:
+                      MainAxisAlignment.center,
+
+                      children: [
+
+                        Icon(
+                          Icons.person,
+                          size: 45,
+                          color: Colors.green,
+                        ),
+
+                        SizedBox(height: 10),
+
+                        Text('Profil'),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 15),
+
+                Expanded(
+                  child: GestureDetector(
+
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const AdminLoginPage(),
+                        ),
+                      );
+                    },
+
+                    child: Container(
+
+                      height: 130,
+
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 5,
+                          ),
+                        ],
+                      ),
+
+                      child: const Column(
+
+                        mainAxisAlignment:
+                        MainAxisAlignment.center,
+
+                        children: [
+
+                          Icon(
+                            Icons.admin_panel_settings,
+                            size: 45,
+                            color: Colors.red,
+                          ),
+
+                          SizedBox(height: 10),
+
+                          Text('Admin'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
 
                 // =====================
                 // GENRE

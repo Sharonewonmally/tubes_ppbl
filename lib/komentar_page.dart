@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/comment_model.dart';
+
 import 'database_helper.dart';
+import '../models/comment_model.dart';
 
 class KomentarPage extends StatefulWidget {
   const KomentarPage({super.key});
@@ -15,71 +16,91 @@ class _KomentarPageState extends State<KomentarPage> {
   final commentController = TextEditingController();
 
   List<CommentModel> comments = [];
+
   String lastUsername = "-";
+  String lastComment = "-";
 
   @override
   void initState() {
     super.initState();
     loadComments();
-    loadUsername();
+    loadPreferences();
   }
 
-  Future<void> loadUsername() async {
+  Future<void> loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
 
     setState(() {
       lastUsername = prefs.getString("username") ?? "-";
+      lastComment = prefs.getString("last_comment") ?? "-";
     });
   }
 
-  Future<void> saveUsername() async {
+  Future<void> savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setString(
       "username",
       usernameController.text,
     );
+
+    await prefs.setString(
+      "last_comment",
+      commentController.text,
+    );
   }
 
   Future<void> loadComments() async {
     final data =
-    await DatabaseHelper.getKomentarByForum(1);
+    await DatabaseHelper.ambilSemuaKomentarfeby();
 
     setState(() {
       comments = data
-          .map((e) => CommentModel.fromMap(e))
+          .map(
+            (e) => CommentModel.fromMap(e),
+      )
           .toList();
     });
   }
 
   Future<void> addComment() async {
-    if (usernameController.text.isEmpty ||
-        commentController.text.isEmpty) {
+    if (usernameController.text.trim().isEmpty ||
+        commentController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Lengkapi username dan komentar"),
+          content: Text(
+            "Lengkapi username dan komentar",
+          ),
         ),
       );
       return;
     }
 
     await DatabaseHelper.tambahKomentar(
-      1,
+      0,
       usernameController.text,
       commentController.text,
     );
 
-    await saveUsername();
+    await savePreferences();
 
     usernameController.clear();
     commentController.clear();
 
-    await loadUsername();
+    await loadPreferences();
     await loadComments();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Komentar berhasil ditambahkan",
+        ),
+      ),
+    );
   }
 
   Future<void> deleteComment(int id) async {
-    await DatabaseHelper.hapusKomentar(id);
+    await DatabaseHelper.hapusKomentarfeby(id);
     await loadComments();
   }
 
@@ -93,7 +114,9 @@ class _KomentarPageState extends State<KomentarPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(context);
+            },
             child: const Text("Batal"),
           ),
           ElevatedButton(
@@ -109,17 +132,28 @@ class _KomentarPageState extends State<KomentarPage> {
   }
 
   @override
+  void dispose() {
+    usernameController.dispose();
+    commentController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: const Text(
-          "Komentar",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          "Komentar Buku",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -127,90 +161,175 @@ class _KomentarPageState extends State<KomentarPage> {
       ),
       body: Column(
         children: [
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  child: const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    "Username Terakhir\n$lastUsername",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.all(16),
             child: Card(
-              elevation: 3,
+              elevation: 4,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius:
+                BorderRadius.circular(16),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding:
+                const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     TextField(
-                      controller: usernameController,
-                      decoration: InputDecoration(
-                        prefixIcon:
-                        const Icon(Icons.person_outline),
+                      controller:
+                      usernameController,
+                      decoration:
+                      InputDecoration(
                         labelText: "Username",
-                        border: OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    TextField(
-                      controller: commentController,
-                      maxLines: 3,
-                      decoration: InputDecoration(
                         prefixIcon:
-                        const Icon(Icons.comment_outlined),
-                        labelText: "Komentar",
-                        alignLabelWithHint: true,
-                        border: OutlineInputBorder(
+                        const Icon(
+                          Icons.person,
+                        ),
+                        border:
+                        OutlineInputBorder(
                           borderRadius:
-                          BorderRadius.circular(12),
+                          BorderRadius
+                              .circular(
+                            12,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    TextField(
+                      controller:
+                      commentController,
+                      maxLines: 3,
+                      decoration:
+                      InputDecoration(
+                        labelText: "Komentar",
+                        prefixIcon:
+                        const Icon(
+                          Icons.comment,
+                        ),
+                        alignLabelWithHint:
+                        true,
+                        border:
+                        OutlineInputBorder(
+                          borderRadius:
+                          BorderRadius
+                              .circular(
+                            12,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
                     SizedBox(
-                      width: double.infinity,
+                      width:
+                      double.infinity,
                       height: 50,
-                      child: ElevatedButton.icon(
-                        onPressed: addComment,
-                        icon: const Icon(Icons.send),
+                      child:
+                      ElevatedButton.icon(
+                        onPressed:
+                        addComment,
+                        icon: const Icon(
+                          Icons.send,
+                        ),
                         label: const Text(
                           "Tambah Komentar",
                         ),
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
+                        style:
+                        ElevatedButton
+                            .styleFrom(
+                          shape:
+                          RoundedRectangleBorder(
                             borderRadius:
-                            BorderRadius.circular(12),
+                            BorderRadius
+                                .circular(
+                              12,
+                            ),
                           ),
                         ),
+                      ),
+                    ),
+
+                    const SizedBox(
+                      height: 15,
+                    ),
+
+                    Container(
+                      width:
+                      double.infinity,
+                      padding:
+                      const EdgeInsets
+                          .all(12),
+                      decoration:
+                      BoxDecoration(
+                        color: Colors
+                            .blue
+                            .shade50,
+                        borderRadius:
+                        BorderRadius
+                            .circular(
+                          12,
+                        ),
+                        border:
+                        Border.all(
+                          color: Colors
+                              .blue
+                              .shade100,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment:
+                        CrossAxisAlignment
+                            .start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.history,
+                                color: Colors
+                                    .blue,
+                              ),
+                              SizedBox(
+                                width: 8,
+                              ),
+                              Text(
+                                "Data SharedPreferences",
+                                style:
+                                TextStyle(
+                                  fontWeight:
+                                  FontWeight
+                                      .bold,
+                                  fontSize:
+                                  15,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Last Username : $lastUsername",
+                            style:
+                            const TextStyle(
+                              fontWeight:
+                              FontWeight
+                                  .w500,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Last Comment : $lastComment",
+                            maxLines: 2,
+                            overflow:
+                            TextOverflow
+                                .ellipsis,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -219,8 +338,6 @@ class _KomentarPageState extends State<KomentarPage> {
             ),
           ),
 
-          const SizedBox(height: 10),
-
           Expanded(
             child: comments.isEmpty
                 ? const Center(
@@ -228,48 +345,82 @@ class _KomentarPageState extends State<KomentarPage> {
                 "Belum ada komentar",
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color:
+                  Colors.grey,
                 ),
               ),
             )
                 : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: comments.length,
-              itemBuilder: (context, index) {
-                final c = comments[index];
+              padding:
+              const EdgeInsets
+                  .symmetric(
+                horizontal: 16,
+              ),
+              itemCount:
+              comments.length,
+              itemBuilder:
+                  (context,
+                  index) {
+                final c =
+                comments[index];
 
                 return Card(
                   margin:
-                  const EdgeInsets.only(bottom: 12),
+                  const EdgeInsets
+                      .only(
+                    bottom: 12,
+                  ),
                   elevation: 2,
-                  shape: RoundedRectangleBorder(
+                  shape:
+                  RoundedRectangleBorder(
                     borderRadius:
-                    BorderRadius.circular(15),
+                    BorderRadius
+                        .circular(
+                      15,
+                    ),
                   ),
                   child: ListTile(
-                    leading: CircleAvatar(
+                    leading:
+                    CircleAvatar(
                       child: Text(
-                        c.username[0].toUpperCase(),
+                        c.username[0]
+                            .toUpperCase(),
                       ),
                     ),
                     title: Text(
                       c.username,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                      style:
+                      const TextStyle(
+                        fontWeight:
+                        FontWeight
+                            .bold,
                       ),
                     ),
-                    subtitle: Padding(
+                    subtitle:
+                    Padding(
                       padding:
-                      const EdgeInsets.only(top: 5),
-                      child: Text(c.comment),
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(
-                        Icons.delete_outline,
-                        color: Colors.red,
+                      const EdgeInsets
+                          .only(
+                        top: 4,
                       ),
-                      onPressed: () =>
-                          showDeleteDialog(c.id!),
+                      child: Text(
+                        c.pesan,
+                      ),
+                    ),
+                    trailing:
+                    IconButton(
+                      icon:
+                      const Icon(
+                        Icons
+                            .delete_outline,
+                        color:
+                        Colors.red,
+                      ),
+                      onPressed:
+                          () =>
+                          showDeleteDialog(
+                            c.id!,
+                          ),
                     ),
                   ),
                 );

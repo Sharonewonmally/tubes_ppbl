@@ -1,19 +1,19 @@
 class CommentModel {
   int? id;
   String username;
-  String comment;
+  String pesan;
 
   CommentModel({
     this.id,
     required this.username,
-    required this.comment,
+    required this.pesan,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'username': username,
-      'comment': comment,
+      'pesan': pesan,
     };
   }
 
@@ -22,7 +22,7 @@ class CommentModel {
     return CommentModel(
       id: map['id'],
       username: map['username'],
-      comment: map['comment'],
+      pesan: map['pesan'],
     );
   }
 }

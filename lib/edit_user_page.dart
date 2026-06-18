@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/global_data.dart';
 import 'database_helper.dart';
-import 'models/user_model.dart';
 
 class EditUserPage extends StatefulWidget {
   const EditUserPage({super.key});
@@ -13,13 +14,13 @@ class EditUserPage extends StatefulWidget {
 class _EditUserPageState extends State<EditUserPage> {
   late int userId;
 
-  TextEditingController usernameC =
-  TextEditingController();
-
-  TextEditingController socialC =
-  TextEditingController();
+  TextEditingController usernameC = TextEditingController();
+  TextEditingController socialC = TextEditingController();
 
   bool isLoading = true;
+
+  // ================= FOTO PROFIL =================
+  String fotoProfil = '';
 
   // ================= SHARED PREFERENCES =================
   String lastEditedUser = "-";
@@ -29,8 +30,7 @@ class _EditUserPageState extends State<EditUserPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    userId =
-    ModalRoute.of(context)!.settings.arguments as int;
+    userId = ModalRoute.of(context)!.settings.arguments as int;
 
     fetchUser();
     loadSharedPrefs();
@@ -39,16 +39,16 @@ class _EditUserPageState extends State<EditUserPage> {
   // ================= SQLITE GET DETAIL =================
   Future<void> fetchUser() async {
 
-    final data =
+    final user =
     await DatabaseHelper.getUserById(userId);
 
     setState(() {
 
-      usernameC.text =
-      data['username'];
+      usernameC.text = user['username'];
 
-      socialC.text =
-      data['social_media'];
+      socialC.text = user['social_media'];
+
+      fotoProfil = user['foto_profil'];
 
       isLoading = false;
     });
@@ -56,15 +56,11 @@ class _EditUserPageState extends State<EditUserPage> {
 
   // ================= SHARED PREFERENCES =================
   Future<void> loadSharedPrefs() async {
-    SharedPreferences prefs =
-    await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      lastEditedUser =
-          prefs.getString('lastEditedUser') ?? '-';
-
-      lastEditedId =
-          prefs.getInt('lastEditedId') ?? 0;
+      lastEditedUser = prefs.getString('lastEditedUser') ?? '-';
+      lastEditedId = prefs.getInt('lastEditedId') ?? 0;
     });
   }
 
@@ -74,23 +70,20 @@ class _EditUserPageState extends State<EditUserPage> {
       id: userId,
       username: usernameC.text,
       socialMedia: socialC.text,
-      fotoProfil: '',
+
+      // FOTO TETAP DISIMPAN
+      fotoProfil: fotoProfil,
     );
 
     await DatabaseHelper.updateUser(
-
       userId,
-
       usernameC.text,
-
       socialC.text,
-
-      '',
+      fotoProfil,
     );
 
     // ================= SHARED PREFERENCES =================
-    SharedPreferences prefs =
-    await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await prefs.setString(
       'lastEditedUser',
@@ -117,79 +110,181 @@ class _EditUserPageState extends State<EditUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50, // Latar belakang yang lebih modern
       appBar: AppBar(
-        title: const Text("Edit User"),
+        title: const Text(
+          "Edit User",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
       ),
       body: isLoading
           ? const Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          color: Colors.blueAccent,
+        ),
       )
-          : Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // ================= SHARED PREFERENCES INFO =================
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                borderRadius:
-                BorderRadius.circular(12),
+          : SingleChildScrollView( // Ditambahkan agar tidak error saat keyboard muncul
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ================= SHARED PREFERENCES INFO =================
+              Card(
+                elevation: 2,
+                shadowColor: Colors.black12,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.edit_note_rounded,
+                          color: Colors.orange.shade700,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Terakhir Diedit",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Username : $lastEditedUser",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "ID User      : $lastEditedId",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Shared Preferences",
+
+              const SizedBox(height: 32),
+
+              const Text(
+                "Informasi Pengguna",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // ================= USERNAME =================
+              TextField(
+                controller: usernameC,
+                decoration: InputDecoration(
+                  labelText: "Username",
+                  hintText: "Masukkan username",
+                  prefixIcon: Icon(Icons.person_outline, color: Colors.blue.shade400),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.blue.shade300, width: 2),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ================= SOCIAL MEDIA =================
+              TextField(
+                controller: socialC,
+                decoration: InputDecoration(
+                  labelText: "Social Media",
+                  hintText: "Contoh: @username",
+                  prefixIcon: Icon(Icons.alternate_email, color: Colors.blue.shade400),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.blue.shade300, width: 2),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // ================= TOMBOL SIMPAN =================
+              SizedBox(
+                width: double.infinity,
+                height: 55, // Tombol dibuat sedikit lebih tinggi agar nyaman ditekan
+                child: ElevatedButton.icon(
+                  onPressed: saveUser,
+                  icon: const Icon(Icons.save_rounded, color: Colors.white),
+                  label: const Text(
+                    "Simpan Perubahan",
                     style: TextStyle(
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    "Last Edited User: $lastEditedUser",
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  Text(
-                    "Last Edited ID: $lastEditedId",
-                  ),
-                ],
+                ),
               ),
-            ),
-
-            const SizedBox(height: 25),
-
-            TextField(
-              controller: usernameC,
-              decoration:
-              const InputDecoration(
-                labelText: "Username",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            TextField(
-              controller: socialC,
-              decoration:
-              const InputDecoration(
-                labelText: "Social Media",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: saveUser,
-                child: const Text("Simpan"),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

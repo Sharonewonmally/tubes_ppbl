@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'models/comment_model.dart';
 
 class DatabaseHelper {
 
@@ -159,6 +160,10 @@ class DatabaseHelper {
     );
   }
 
+  // =====================
+  // login
+  // =====================
+
   static Future<Map<String, dynamic>?>
   loginUser(
       String username,
@@ -185,7 +190,7 @@ class DatabaseHelper {
     return result.first;
   }
   // =====================
-  // KOMENTAR
+  // KOMENTAR FORUM
   // =====================
 
   static Future<int> tambahKomentar(
@@ -220,9 +225,10 @@ class DatabaseHelper {
     );
   }
 
-  static Future<int> hapusKomentar(
-      int id,
-      ) async {
+  // =====================
+  // KOMENTAR buku
+  // ====================='
+  static Future<int> hapusKomentarfeby(int id) async {
 
     final db = await getDatabase();
 
@@ -232,4 +238,28 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
+
+  static Future<List<Map<String, dynamic>>>
+  ambilSemuaKomentarfeby() async {
+
+    final db = await getDatabase();
+
+    return await db.query(
+      'komentar',
+      orderBy: 'id DESC',
+    );
+  }
+
+  static Future<int> tambahKomentarFeby(
+      CommentModel comment,
+      ) async {
+
+    final db = await getDatabase();
+
+    return await db.insert(
+      'komentar',
+      comment.toMap(),
+    );
+  }
 }
+
