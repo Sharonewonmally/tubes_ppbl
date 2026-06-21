@@ -23,6 +23,7 @@ class _KomentarPageState extends State<KomentarPage> {
   @override
   void initState() {
     super.initState();
+
     loadComments();
     loadPreferences();
   }
@@ -31,6 +32,7 @@ class _KomentarPageState extends State<KomentarPage> {
     final prefs = await SharedPreferences.getInstance();
 
     setState(() {
+
       lastUsername = prefs.getString("username") ?? "-";
       lastComment = prefs.getString("last_comment") ?? "-";
     });
@@ -51,53 +53,65 @@ class _KomentarPageState extends State<KomentarPage> {
   }
 
   Future<void> loadComments() async {
-    final data =
-    await DatabaseHelper.ambilSemuaKomentarfeby();
+  final data =
+      await DatabaseHelper.ambilSemuaKomentarfeby();
 
-    setState(() {
-      comments = data
-          .map(
-            (e) => CommentModel.fromMap(e),
-      )
-          .toList();
-    });
-  }
+  setState(() {
+    comments = data
+        .map((e) => CommentModel(
+              id: e['id'],
+              username: e['username'],
+              pesan: e['comment'],
+            ))
+        .toList();
+  });
+}
 
-  Future<void> addComment() async {
+ Future<void> addComment() async {
+  try {
     if (usernameController.text.trim().isEmpty ||
         commentController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            "Lengkapi username dan komentar",
-          ),
+          content: Text("Lengkapi username dan komentar"),
         ),
       );
       return;
     }
 
-    await DatabaseHelper.tambahKomentar(
-      0,
-      usernameController.text,
-      commentController.text,
+    await DatabaseHelper.tambahKomentarFeby(
+      CommentModel(
+        username: usernameController.text,
+        pesan: commentController.text,
+      ),
     );
 
+    // SIMPAN KE SHAREDPREFERENCES
     await savePreferences();
 
+    // REFRESH DATA SHAREDPREFERENCES
+    await loadPreferences();
+
+    // REFRESH KOMENTAR
+    await loadComments();
+
+    // KOSONGKAN FORM
     usernameController.clear();
     commentController.clear();
 
-    await loadPreferences();
-    await loadComments();
-
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(
-          "Komentar berhasil ditambahkan",
-        ),
+        content: Text("Komentar berhasil ditambahkan"),
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Error: $e"),
       ),
     );
   }
+}
 
   Future<void> deleteComment(int id) async {
     await DatabaseHelper.hapusKomentarfeby(id);
@@ -151,9 +165,7 @@ class _KomentarPageState extends State<KomentarPage> {
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-          ),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -167,167 +179,114 @@ class _KomentarPageState extends State<KomentarPage> {
               elevation: 4,
               shape: RoundedRectangleBorder(
                 borderRadius:
-                BorderRadius.circular(16),
+                    BorderRadius.circular(16),
               ),
               child: Padding(
-                padding:
-                const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     TextField(
-                      controller:
-                      usernameController,
-                      decoration:
-                      InputDecoration(
+                      controller: usernameController,
+                      decoration: InputDecoration(
                         labelText: "Username",
                         prefixIcon:
-                        const Icon(
-                          Icons.person,
-                        ),
-                        border:
-                        OutlineInputBorder(
+                            const Icon(Icons.person),
+                        border: OutlineInputBorder(
                           borderRadius:
-                          BorderRadius
-                              .circular(
+                              BorderRadius.circular(
                             12,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 15,
-                    ),
+                    const SizedBox(height: 15),
                     TextField(
-                      controller:
-                      commentController,
+                      controller: commentController,
                       maxLines: 3,
-                      decoration:
-                      InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Komentar",
                         prefixIcon:
-                        const Icon(
-                          Icons.comment,
-                        ),
-                        alignLabelWithHint:
-                        true,
-                        border:
-                        OutlineInputBorder(
+                            const Icon(Icons.comment),
+                        alignLabelWithHint: true,
+                        border: OutlineInputBorder(
                           borderRadius:
-                          BorderRadius
-                              .circular(
+                              BorderRadius.circular(
                             12,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 15,
-                    ),
+                    const SizedBox(height: 15),
                     SizedBox(
-                      width:
-                      double.infinity,
+                      width: double.infinity,
                       height: 50,
-                      child:
-                      ElevatedButton.icon(
-                        onPressed:
-                        addComment,
-                        icon: const Icon(
-                          Icons.send,
-                        ),
+                      child: ElevatedButton.icon(
+                        onPressed: addComment,
+                        icon: const Icon(Icons.send),
                         label: const Text(
                           "Tambah Komentar",
                         ),
                         style:
-                        ElevatedButton
-                            .styleFrom(
+                            ElevatedButton.styleFrom(
                           shape:
-                          RoundedRectangleBorder(
+                              RoundedRectangleBorder(
                             borderRadius:
-                            BorderRadius
-                                .circular(
-                              12,
-                            ),
+                                BorderRadius
+                                    .circular(12),
                           ),
                         ),
                       ),
                     ),
 
-                    const SizedBox(
-                      height: 15,
-                    ),
+                    const SizedBox(height: 15),
 
                     Container(
-                      width:
-                      double.infinity,
+                      width: double.infinity,
                       padding:
-                      const EdgeInsets
-                          .all(12),
-                      decoration:
-                      BoxDecoration(
-                        color: Colors
-                            .blue
-                            .shade50,
+                          const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
                         borderRadius:
-                        BorderRadius
-                            .circular(
-                          12,
-                        ),
-                        border:
-                        Border.all(
-                          color: Colors
-                              .blue
-                              .shade100,
+                            BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.blue.shade100,
                         ),
                       ),
                       child: Column(
                         crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                            CrossAxisAlignment.start,
                         children: [
                           const Row(
                             children: [
                               Icon(
                                 Icons.history,
-                                color: Colors
-                                    .blue,
+                                color: Colors.blue,
                               ),
-                              SizedBox(
-                                width: 8,
-                              ),
+                              SizedBox(width: 8),
                               Text(
                                 "Data SharedPreferences",
-                                style:
-                                TextStyle(
+                                style: TextStyle(
                                   fontWeight:
-                                  FontWeight
-                                      .bold,
-                                  fontSize:
-                                  15,
+                                      FontWeight.bold,
+                                  fontSize: 15,
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(
-                            height: 10,
-                          ),
+                          SizedBox(height: 10),
                           Text(
                             "Last Username : $lastUsername",
-                            style:
-                            const TextStyle(
+                            style: const TextStyle(
                               fontWeight:
-                              FontWeight
-                                  .w500,
+                                  FontWeight.w500,
                             ),
                           ),
-                          SizedBox(
-                            height: 5,
-                          ),
+                          SizedBox(height: 5),
                           Text(
                             "Last Comment : $lastComment",
                             maxLines: 2,
                             overflow:
-                            TextOverflow
-                                .ellipsis,
+                                TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -341,91 +300,75 @@ class _KomentarPageState extends State<KomentarPage> {
           Expanded(
             child: comments.isEmpty
                 ? const Center(
-              child: Text(
-                "Belum ada komentar",
-                style: TextStyle(
-                  fontSize: 16,
-                  color:
-                  Colors.grey,
-                ),
-              ),
-            )
+                    child: Text(
+                      "Belum ada komentar",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  )
                 : ListView.builder(
-              padding:
-              const EdgeInsets
-                  .symmetric(
-                horizontal: 16,
-              ),
-              itemCount:
-              comments.length,
-              itemBuilder:
-                  (context,
-                  index) {
-                final c =
-                comments[index];
+                    padding:
+                        const EdgeInsets.symmetric(
+                      horizontal: 16,
+                    ),
+                    itemCount: comments.length,
+                    itemBuilder:
+                        (context, index) {
+                      final c = comments[index];
 
-                return Card(
-                  margin:
-                  const EdgeInsets
-                      .only(
-                    bottom: 12,
-                  ),
-                  elevation: 2,
-                  shape:
-                  RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius
-                        .circular(
-                      15,
-                    ),
-                  ),
-                  child: ListTile(
-                    leading:
-                    CircleAvatar(
-                      child: Text(
-                        c.username[0]
-                            .toUpperCase(),
-                      ),
-                    ),
-                    title: Text(
-                      c.username,
-                      style:
-                      const TextStyle(
-                        fontWeight:
-                        FontWeight
-                            .bold,
-                      ),
-                    ),
-                    subtitle:
-                    Padding(
-                      padding:
-                      const EdgeInsets
-                          .only(
-                        top: 4,
-                      ),
-                      child: Text(
-                        c.pesan,
-                      ),
-                    ),
-                    trailing:
-                    IconButton(
-                      icon:
-                      const Icon(
-                        Icons
-                            .delete_outline,
-                        color:
-                        Colors.red,
-                      ),
-                      onPressed:
-                          () =>
-                          showDeleteDialog(
-                            c.id!,
+                      return Card(
+                        margin:
+                            const EdgeInsets.only(
+                          bottom: 12,
+                        ),
+                        elevation: 2,
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(
+                            15,
                           ),
-                    ),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            child: Text(
+                              c.username[0]
+                                  .toUpperCase(),
+                            ),
+                          ),
+                          title: Text(
+                            c.username,
+                            style:
+                                const TextStyle(
+                              fontWeight:
+                                  FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Padding(
+                            padding:
+                                const EdgeInsets.only(
+                              top: 4,
+                            ),
+                            child: Text(
+                              c.pesan,
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                            ),
+                            onPressed: () =>
+                                showDeleteDialog(
+                              c.id!,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),

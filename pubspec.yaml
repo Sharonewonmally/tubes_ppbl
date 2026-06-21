@@ -24,6 +24,24 @@ dependencies:
   # PATH SQLITE
   path: ^1.9.0
 
+  # DATE FORMAT
+  intl: ^0.20.2
+
+  # PILIH GAMBAR GALERI
+  image_picker: ^1.2.1
+
+  # RATING BAR
+  flutter_rating_bar: ^4.0.1
+
+  # LOTTIE ANIMASI
+  lottie: ^3.1.0
+
+
+  flutter_slidable: ^4.0.1
+  
+  google_fonts: ^6.2.1
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -36,3 +54,4 @@ flutter:
   assets:
     - assets/
     - assets/cover/
+    - assets/lottie/confetti.json

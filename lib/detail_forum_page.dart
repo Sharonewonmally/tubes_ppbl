@@ -39,7 +39,7 @@ class _DetailForumPageState
 
     komentarList =
     await db.query(
-      'komentar',
+      'forum_komentar',
       where: 'forum_id = ?',
       whereArgs: [
         widget.forum['id'],
@@ -64,7 +64,7 @@ class _DetailForumPageState
       await DatabaseHelper.getDatabase();
 
       await db.insert(
-        'komentar',
+        'forum_komentar',
         {
           'forum_id':
           widget.forum['id'],

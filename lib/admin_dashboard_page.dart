@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'kelola_forum_page.dart';
 import 'user_list_page.dart';
+import 'kelola_promosi_page.dart';
+import 'kelola_ulasan_page.dart';
+import 'kelola_resume_page.dart';
 
 
 class AdminDashboardPage
@@ -109,6 +112,28 @@ class AdminDashboardPage
 
             ListTile(
 
+  leading: const Icon(Icons.description),
+
+  title: const Text('Kelola Resume'),
+
+  onTap: () {
+
+    Navigator.push(
+
+      context,
+
+      MaterialPageRoute(
+
+        builder: (_) =>
+        const KelolaResumePage(),
+
+      ),
+    );
+  },
+),
+
+            ListTile(
+
               leading:
               const Icon(Icons.people),
 
@@ -130,22 +155,67 @@ class AdminDashboardPage
               },
             ),
 
+// =====================
+// KELOLA PROMOSI
+// =====================
             ListTile(
 
               leading:
-              const Icon(
-                  Icons.logout),
+              const Icon(Icons.campaign),
 
               title:
-              const Text(
-                  'Logout'),
+              const Text('Kelola Promosi'),
+
+              onTap: () {
+
+                Navigator.push(
+
+                  context,
+
+                  MaterialPageRoute(
+
+                    builder: (_) =>
+                    const KelolaPromosiPage(),
+                  ),
+                );
+              },
+            ),
+
+            ListTile(
+
+              leading:
+              const Icon(Icons.star),
+
+              title:
+              const Text('Kelola Ulasan'),
+
+              onTap: () {
+
+                Navigator.push(
+
+                  context,
+
+                  MaterialPageRoute(
+
+                    builder: (_) =>
+                    const KelolaUlasanPage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+
+              leading:
+              const Icon(Icons.logout),
+
+              title:
+              const Text('Logout'),
 
               onTap: () {
 
                 Navigator.popUntil(
                   context,
-                      (route) =>
-                  route.isFirst,
+                      (route) => route.isFirst,
                 );
               },
             ),
@@ -322,6 +392,64 @@ class AdminDashboardPage
 
                 const SizedBox(width: 15),
 
+                GestureDetector(
+
+                  onTap: () {
+
+                    Navigator.push(
+
+                      context,
+
+                      MaterialPageRoute(
+
+                        builder: (_) =>
+                        const KelolaUlasanPage(),
+                      ),
+                    );
+                  },
+
+                  child: Container(
+
+                    height: 130,
+
+                    decoration: BoxDecoration(
+
+                      color: Colors.white,
+
+                      borderRadius:
+                      BorderRadius.circular(20),
+
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 5,
+                        ),
+                      ],
+                    ),
+
+                    child: const Column(
+
+                      mainAxisAlignment:
+                      MainAxisAlignment.center,
+
+                      children: [
+
+                        Icon(
+                          Icons.star,
+                          size: 45,
+                          color: Colors.amber,
+                        ),
+
+                        SizedBox(height: 10),
+
+                        Text(
+                          "Kelola Ulasan",
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 Expanded(
 
                   child: GestureDetector(
@@ -380,10 +508,14 @@ class AdminDashboardPage
                           Text(
                             "Kelola User",
                           ),
+
                         ],
+
                       ),
                     ),
+
                   ),
+
                 ),
               ],
             ),
@@ -428,6 +560,8 @@ class AdminDashboardPage
                   ),
                 ],
               ),
+
+
             ),
           ],
         ),

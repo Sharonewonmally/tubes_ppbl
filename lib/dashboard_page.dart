@@ -2,9 +2,45 @@ import 'package:flutter/material.dart';
 import 'forum_local_page.dart';
 import 'admin_login_page.dart';
 import 'genre_page.dart';
+import 'detail_promosi_page.dart';
+import 'database_helper.dart';
+import 'favorite_page.dart';
+import 'reward_page.dart';
+import 'buku_premium_page.dart';
+import 'resume_page.dart';
+import 'riwayat_baca_page.dart';
+import 'tulis_buku_page.dart';
+import 'karya_saya_page.dart';
+import 'profile_page.dart';
+import 'dart:io';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() =>
+      _DashboardPageState();
+}
+
+class _DashboardPageState
+    extends State<DashboardPage> {
+  List<Map<String ,dynamic>> promosiList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadPromosi();
+  }
+
+  Future<void> loadPromosi() async {
+
+    final data =
+    await DatabaseHelper.getPromosi();
+
+    setState(() {
+      promosiList = data;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +88,7 @@ class DashboardPage extends StatelessWidget {
 
                   Text(
 
-                    'Sharone',
+                    'Adzra',
 
                     style: TextStyle(
                       color: Colors.white,
@@ -62,6 +98,32 @@ class DashboardPage extends StatelessWidget {
                 ],
               ),
             ),
+// =========================
+            // PROFIL
+            // =========================
+           ListTile(
+
+  leading: const Icon(Icons.person),
+
+  title: const Text('Profil'),
+
+  onTap: () {
+
+    Navigator.push(
+
+      context,
+
+      MaterialPageRoute(
+
+        builder: (_) => const ProfilePage(),
+
+      ),
+
+    );
+
+  },
+
+),
 
             // =========================
             // DASHBOARD
@@ -130,41 +192,137 @@ class DashboardPage extends StatelessWidget {
                 );
               },
             ),
-            // =========================
-            // PROFIL
-            // =========================
             ListTile(
+  leading: const Icon(Icons.menu_book),
+  title: const Text('Resume Buku'),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ResumePage(),
+      ),
+    );
+  },
+),
 
-              leading:
-              const Icon(Icons.person),
+ListTile(
+  leading: const Icon(Icons.history),
+  title: const Text("Riwayat Baca"),
+  onTap: () {
 
-              title:
-              const Text('Profil'),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const RiwayatBacaPage(),
+      ),
+    );
 
-              onTap: () {
+  },
+),
+            // =========================
+// REWARD
+// =========================
+ListTile(
 
-                showDialog(
+  leading: const Icon(Icons.card_giftcard),
 
-                  context: context,
+  title: const Text('Reward'),
 
-                  builder: (_) {
+  onTap: () {
 
-                    return const AlertDialog(
+    Navigator.push(
 
-                      title: Text('Profil'),
+      context,
 
-                      content: Text(
+      MaterialPageRoute(
 
-                        'Nama: Sharone\n'
-                            'Kelas: D3SI\n'
-                            'Assessment 2 Flutter',
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+        builder: (_) => const RewardPage(
+          userId: 1,
+        ),
+      ),
+    );
+  },
+),
+ListTile(
+  leading: const Icon(Icons.edit),
+  title: const Text('Tulis Buku'),
+  onTap: () {
 
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const TulisBukuPage(),
+      ),
+    );
+
+  },
+),
+
+ListTile(
+  leading: const Icon(Icons.library_books),
+  title: const Text('Karya Saya'),
+  onTap: () {
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const KaryaSayaPage(),
+      ),
+    );
+
+  },
+),
+// =========================
+// BUKU PREMIUM
+// =========================
+ListTile(
+
+  leading: const Icon(Icons.workspace_premium),
+
+  title: const Text('Buku Premium'),
+
+  onTap: () {
+
+    Navigator.push(
+
+      context,
+
+      MaterialPageRoute(
+
+        builder: (_) => const BukuPremiumPage(
+          userId: 1,
+        ),
+      ),
+    );
+  },
+),
+            // =========================
+// FAVORIT
+// =========================
+ListTile(
+
+  leading:
+  const Icon(Icons.favorite),
+
+  title:
+  const Text('Buku Favorit'),
+
+  onTap: () {
+
+    Navigator.push(
+
+      context,
+
+      MaterialPageRoute(
+
+        builder: (_) =>
+        const FavoritePage(),
+      ),
+    );
+  },
+),
+
+            
             // ADMIN DASHBOARD
             ListTile(
 
@@ -212,16 +370,18 @@ class DashboardPage extends StatelessWidget {
         Colors.blue,
       ),
 
-      body: Padding(
+      body: SingleChildScrollView(
 
-        padding: const EdgeInsets.all(16),
+        child: Padding(
 
-        child: Column(
+          padding: const EdgeInsets.all(16),
 
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          child: Column(
 
-          children: [
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+
+              children: [
 
             const SizedBox(height: 20),
 
@@ -329,109 +489,11 @@ class DashboardPage extends StatelessWidget {
             Row(
               children: [
 
-                Expanded(
-                  child: GestureDetector(
 
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                          const ForumLocalPage(),
-                        ),
-                      );
-                    },
-
-                    child: Container(
-
-                      height: 130,
-
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                        BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 5,
-                          ),
-                        ],
-                      ),
-
-                      child: const Column(
-
-                        mainAxisAlignment:
-                        MainAxisAlignment.center,
-
-                        children: [
-
-                          Icon(
-                            Icons.forum,
-                            size: 45,
-                            color: Colors.blue,
-                          ),
-
-                          SizedBox(height: 10),
-
-                          Text('Forum Diskusi'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
 
                 const SizedBox(width: 15),
 
-                Expanded(
-                  child: GestureDetector(
 
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                          const GenrePage(),
-                        ),
-                      );
-                    },
-
-                    child: Container(
-
-                      height: 130,
-
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                        BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 5,
-                          ),
-                        ],
-                      ),
-
-                      child: const Column(
-
-                        mainAxisAlignment:
-                        MainAxisAlignment.center,
-
-                        children: [
-
-                          Icon(
-                            Icons.book,
-                            size: 45,
-                            color: Colors.orange,
-                          ),
-
-                          SizedBox(height: 10),
-
-                          Text('Genre Buku'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
 
@@ -472,7 +534,7 @@ class DashboardPage extends StatelessWidget {
 
                         SizedBox(height: 10),
 
-                        Text('Profil'),
+                        Text('Forum diskusi'),
                       ],
                     ),
                   ),
@@ -584,7 +646,143 @@ class DashboardPage extends StatelessWidget {
                 ),
               ],
             ),
-          ],
+              const SizedBox(height: 25),
+
+              const Text(
+                "Info Komunitas & Lomba",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(15),
+
+                  decoration: BoxDecoration(
+                    color: Colors.lightBlueAccent,
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+                     ...promosiList.map((data) {
+
+  return GestureDetector(
+
+    onTap: () {
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              DetailPromosiPage(
+                data: data,
+              ),
+        ),
+      );
+    },
+
+    child: Card(
+
+      child: Column(
+
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+
+        children: [
+
+          if (data['gambar'] != null &&
+              data['gambar']
+                  .toString()
+                  .isNotEmpty)
+
+            ClipRRect(
+
+              borderRadius:
+                  const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+
+              child: Image.file(
+
+                File(data['gambar']),
+
+                width: double.infinity,
+                height: 180,
+
+                fit: BoxFit.cover,
+              ),
+            ),
+
+          Padding(
+
+            padding:
+                const EdgeInsets.all(12),
+
+            child: Column(
+
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+
+                Text(
+
+                  data['judul'],
+
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(
+                  height: 8,
+                ),
+
+                Text(data['isi']),
+
+                const SizedBox(
+                  height: 5,
+                ),
+
+                Text(
+
+                  data['tanggal'],
+
+                  style: const TextStyle(
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+}).toList(),
+
+                    ],
+                  ),
+              ),
+              ],
+          ),
         ),
       ),
     );
